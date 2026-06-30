@@ -1,0 +1,45 @@
+name: Bug report
+description: Report a defect, false positive, or detection bypass
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping make cordon better. A minimal reproduction (ideally a
+        failing test) is the fastest path to a fix.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What kind of issue is this?
+      options:
+        - Detection bypass (payload cordon should flag but does not)
+        - False positive (benign text flagged)
+        - Egress firewall defect
+        - Crash / error
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: cordon version
+      placeholder: "0.2.0"
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal reproduction
+      description: The exact input and the code you ran.
+      render: python
+      placeholder: |
+        import cordon
+        print(cordon.scan("...").summary())
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs actual
+    validations:
+      required: true
