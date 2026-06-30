@@ -2,7 +2,7 @@
 
 Register strings that should NEVER appear in untrusted input or outbound
 payloads: your real system-prompt signature, a unique canary you seeded into
-the context, or actual secrets. If cordon sees one cross the boundary, that is
+the context, or actual secrets. If agent_cordon sees one cross the boundary, that is
 an extraction or exfiltration attempt, not a coincidence.
 """
 
@@ -31,7 +31,7 @@ class CanaryRegistry:
         Seed the returned token into your system prompt or context. If it ever
         shows up in tool output, the model is being induced to leak context.
         """
-        token = "cordon-" + _secrets.token_hex(8)
+        token = "agent_cordon-" + _secrets.token_hex(8)
         self.tokens[token] = label
         return token
 

@@ -1,4 +1,4 @@
-"""The cordon scanning engine.
+"""The agent-cordon scanning engine.
 
 Pipeline:
     text

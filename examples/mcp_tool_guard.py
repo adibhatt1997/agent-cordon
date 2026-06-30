@@ -1,12 +1,12 @@
-"""Example: guard MCP tools and outbound actions with cordon.
+"""Example: guard MCP tools and outbound actions with agent_cordon.
 
-Shows the two boundaries cordon protects:
+Shows the two boundaries agent_cordon protects:
   1. tool output flowing IN to the agent      -> cordon_tool / guard_tool_result
   2. the agent's outbound action going OUT     -> scan_action (egress firewall)
 """
 
-import cordon
-from cordon import Policy, cordon_tool, scan_action
+import agent_cordon
+from agent_cordon import Policy, cordon_tool, scan_action
 
 
 @cordon_tool(on_block="drop")

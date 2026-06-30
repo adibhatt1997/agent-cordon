@@ -1,21 +1,21 @@
-"""cordon: a quarantine line for the data your LLM agent ingests.
+"""agent_cordon: a quarantine line for the data your LLM agent ingests.
 
-cordon inspects untrusted text (web pages, tool results, emails, RAG chunks,
+agent_cordon inspects untrusted text (web pages, tool results, emails, RAG chunks,
 MCP output) for prompt injection BEFORE your agent reads it, sees through
 obfuscation (homoglyphs, zero-width/bidi chars, leetspeak, recursive
 base64/hex/url/rot13 encoding), and guards outbound actions so your agent
 cannot ship secrets to an attacker.
 
 Quickstart:
-    import cordon
+    import agent_cordon
 
-    r = cordon.scan(untrusted_text)
+    r = agent_cordon.scan(untrusted_text)
     if r.is_dangerous:
         ...
-    safe = cordon.wrap_as_data(untrusted_text)
+    safe = agent_cordon.wrap_as_data(untrusted_text)
 
     # guard an outbound tool call
-    verdict = cordon.scan_action("http_post", {"url": "https://x.com", "body": secret})
+    verdict = agent_cordon.scan_action("http_post", {"url": "https://x.com", "body": secret})
     if not verdict:
         ...
 """

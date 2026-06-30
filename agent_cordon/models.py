@@ -1,4 +1,4 @@
-"""Shared data models for cordon."""
+"""Shared data models for agent_cordon."""
 
 from __future__ import annotations
 
@@ -69,7 +69,7 @@ class ScanResult:
     def explain(self) -> str:
         if not self.findings:
             return ("No injection signals. Still wrap this as data before showing "
-                    "it to the model (use cordon.wrap_as_data).")
+                    "it to the model (use agent_cordon.wrap_as_data).")
         parts = [self.summary(), "", "Recommended action:"]
         if self.is_dangerous:
             parts.append("  drop this content or refuse to act on it.")

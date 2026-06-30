@@ -1,11 +1,11 @@
-"""Detection rules for agentward.
+"""Detection rules for agent_cordon.
 
 Each rule is a pattern that commonly appears in prompt-injection or
 data-exfiltration attempts embedded in untrusted text. Rules are transparent,
 categorized, severity- and confidence-weighted, and easy to extend. They cover
 several languages because attackers do not only write in English.
 
-These are heuristics, not proof. agentward is one layer of defense in depth.
+These are heuristics, not proof. agent_cordon is one layer of defense in depth.
 """
 
 from __future__ import annotations

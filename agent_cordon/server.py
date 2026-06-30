@@ -1,18 +1,18 @@
-"""cordon as an MCP server.
+"""agent_cordon as an MCP server.
 
-Exposes cordon over the Model Context Protocol so any MCP client (Claude and
+Exposes agent_cordon over the Model Context Protocol so any MCP client (Claude and
 other agents) can route untrusted content and outbound actions through it.
 
 Run:
-    pip install "cordon[mcp]"
-    cordon-mcp                      # stdio transport (default)
+    pip install "agent_cordon[mcp]"
+    agent-cordon-mcp                      # stdio transport (default)
 
 Tools exposed:
     scan_text(text)            -> risk report for untrusted text
     sanitize_text(text)        -> safe, wrapped version of the text
     scan_action(tool, args)    -> egress firewall verdict for an outbound call
 
-This module imports the optional `mcp` dependency lazily so the rest of cordon
+This module imports the optional `mcp` dependency lazily so the rest of agent_cordon
 stays zero-dependency.
 """
 
@@ -33,10 +33,10 @@ def build_server():
     except ImportError as e:  # pragma: no cover - depends on optional extra
         raise SystemExit(
             "The MCP server needs the optional dependency. Install with:\n"
-            '    pip install "cordon[mcp]"'
+            '    pip install "agent_cordon[mcp]"'
         ) from e
 
-    mcp = FastMCP("cordon")
+    mcp = FastMCP("agent_cordon")
 
     @mcp.tool()
     def scan_text(text: str, strict: bool = False) -> str:

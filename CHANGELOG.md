@@ -1,11 +1,17 @@
 # Changelog
 
-All notable changes to cordon are documented here. Format roughly follows
+All notable changes to agent_cordon are documented here. Format roughly follows
 Keep a Changelog; this project uses semantic versioning.
 
 ## [0.2.0]
 
-The advanced engine. Renamed from the original prototype to `cordon`.
+The advanced engine. Renamed from the original prototype to `agent_cordon`.
+
+### Changed
+- Renamed the import package to `agent_cordon`, the distribution to
+  `agent_cordon`, and the console commands to `agent-cordon` and
+  `agent-cordon-mcp`. Update imports (`import agent_cordon`) and any scripts
+  accordingly. The `cordon_tool` decorator keeps its name.
 
 ### Added
 - Variant pipeline: NFKC normalization, unicode confusable/homoglyph folding,
@@ -20,7 +26,7 @@ The advanced engine. Renamed from the original prototype to `cordon`.
 - Spotlighting / datamarking (`spotlight`) and trust-aware context assembly
   (`build_context`, `Trust`).
 - MCP helpers: `cordon_tool` decorator and `guard_tool_result`.
-- MCP server (`cordon-mcp`, optional `[mcp]` extra) exposing scan / sanitize /
+- MCP server (`agent-cordon-mcp`, optional `[mcp]` extra) exposing scan / sanitize /
   egress tools to any MCP client, including Claude.
 - Benchmark suite: labeled attack/benign corpus, `run_benchmark.py`, and a CI
   quality gate (100% recall, 0% false positives on the bundled corpus).

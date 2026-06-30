@@ -26,6 +26,6 @@ def test_detection_and_false_positive_bars():
 
 def test_strict_catches_everything_default_catches():
     rows = bench.load_corpus()
-    import cordon
-    m = bench.evaluate(rows, cordon.Policy.strict())
+    import agent_cordon
+    m = bench.evaluate(rows, agent_cordon.Policy.strict())
     assert m["recall"] >= m["false_positive_rate"]  # strict stays sane

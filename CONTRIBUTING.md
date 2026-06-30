@@ -1,11 +1,11 @@
-# Contributing to cordon
+# Contributing to agent_cordon
 
-Thanks for helping make agents safer. `cordon` is meant to be community-owned.
+Thanks for helping make agents safer. `agent_cordon` is meant to be community-owned.
 
 ## The most valuable contributions
 
 1. **New injection patterns seen in the wild.** Add a `Rule` to
-   `cordon/rules.py` and a test that proves it fires. Real attacks, multilingual
+   `agent_cordon/rules.py` and a test that proves it fires. Real attacks, multilingual
    payloads, and novel obfuscations are gold.
 2. **Fewer false positives.** If benign text trips a rule, tighten the pattern
    or add an allowlist example, and add a test that locks in the fix.
@@ -15,8 +15,8 @@ Thanks for helping make agents safer. `cordon` is meant to be community-owned.
 ## Dev setup
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/cordon
-cd cordon
+git clone https://github.com/adibhatt1997/agent_cordon
+cd agent_cordon
 pip install -e ".[dev]"
 pytest
 ```
@@ -40,7 +40,7 @@ Rule(
 
 - [ ] `pytest` passes.
 - [ ] New behavior has tests.
-- [ ] No new runtime dependencies (cordon is zero-dependency by design).
+- [ ] No new runtime dependencies (agent_cordon is zero-dependency by design).
 - [ ] Public API changes are reflected in the README.
 
 ## Reporting a vulnerability

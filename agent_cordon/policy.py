@@ -1,4 +1,4 @@
-"""Policy configuration for cordon.
+"""Policy configuration for agent_cordon.
 
 A Policy bundles every knob: thresholds, what to decode, domain allow/deny
 lists for the egress firewall, secret patterns, an allowlist to suppress false

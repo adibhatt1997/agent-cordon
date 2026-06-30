@@ -1,4 +1,4 @@
-"""Benchmark cordon against a labeled corpus of attacks and benign text.
+"""Benchmark agent_cordon against a labeled corpus of attacks and benign text.
 
 Reports detection rate (recall on attacks), false-positive rate (on benign),
 precision, and accuracy, plus a per-family breakdown.
@@ -19,7 +19,7 @@ _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _ROOT not in sys.path:
     sys.path.insert(0, _ROOT)
 
-import cordon  # noqa: E402
+import agent_cordon  # noqa: E402
 
 CORPUS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "corpus.jsonl")
 
@@ -41,7 +41,7 @@ def evaluate(rows: list[dict], policy=None) -> dict:
     by_family: dict[str, list[int]] = {}
 
     for row in rows:
-        flagged = cordon.scan(row["text"], policy).is_suspicious
+        flagged = agent_cordon.scan(row["text"], policy).is_suspicious
         is_attack = row["label"] == "attack"
         fam = row.get("family", "?")
         by_family.setdefault(fam, [0, 0])
@@ -78,12 +78,12 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--strict", action="store_true")
     args = ap.parse_args()
-    policy = cordon.Policy.strict() if args.strict else None
+    policy = agent_cordon.Policy.strict() if args.strict else None
 
     rows = load_corpus()
     m = evaluate(rows, policy)
 
-    print(f"cordon benchmark  ({len(rows)} samples, "
+    print(f"agent_cordon benchmark  ({len(rows)} samples, "
           f"{m['counts']['tp'] + m['counts']['fn']} attacks, "
           f"{m['counts']['tn'] + m['counts']['fp']} benign)")
     print("-" * 52)

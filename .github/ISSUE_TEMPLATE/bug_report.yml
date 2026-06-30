@@ -5,14 +5,14 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for helping make cordon better. A minimal reproduction (ideally a
+        Thanks for helping make agent_cordon better. A minimal reproduction (ideally a
         failing test) is the fastest path to a fix.
   - type: dropdown
     id: kind
     attributes:
       label: What kind of issue is this?
       options:
-        - Detection bypass (payload cordon should flag but does not)
+        - Detection bypass (payload agent_cordon should flag but does not)
         - False positive (benign text flagged)
         - Egress firewall defect
         - Crash / error
@@ -22,7 +22,7 @@ body:
   - type: input
     id: version
     attributes:
-      label: cordon version
+      label: agent_cordon version
       placeholder: "0.2.0"
     validations:
       required: true
@@ -33,8 +33,8 @@ body:
       description: The exact input and the code you ran.
       render: python
       placeholder: |
-        import cordon
-        print(cordon.scan("...").summary())
+        import agent_cordon
+        print(agent_cordon.scan("...").summary())
     validations:
       required: true
   - type: textarea

@@ -1,10 +1,10 @@
-# cordon: project summary
+# agent_cordon: project summary
 
 A record of what we built, why, and exactly what is in the repository.
 
 ## What it is
 
-`cordon` is an open source Python library that protects LLM agents from prompt
+`agent_cordon` is an open source Python library that protects LLM agents from prompt
 injection and data exfiltration. It scans the untrusted text an agent ingests
 (web pages, tool results, emails, RAG chunks, MCP output) before the model reads
 it, and it inspects the actions an agent is about to take before they run.
@@ -19,7 +19,7 @@ as an MCP server so it plugs into Claude and other agents.
 2. Chose the under served problem: most tools guard the system prompt, almost
    none guard the data flowing in from tools and MCP servers, which is where
    agents actually get hijacked.
-3. The first name (agentward) turned out to be taken, so we renamed to `cordon`
+3. The first name (agentward) turned out to be taken, so we renamed to `agent_cordon`
    (a quarantine line) and sharpened the angle to the tool / MCP boundary.
 4. Upgraded it from a basic regex checker into a real multi-layer engine, then
    added an egress firewall, canary tokens, an MCP server, a benchmark, and
@@ -41,8 +41,8 @@ as an MCP server so it plugs into Claude and other agents.
 - Spotlighting / datamarking and trust-tagged context assembly.
 - Pluggable second-stage LLM verifier for gray-zone content, plus a telemetry
   hook for logging and alerts.
-- A CLI (`cordon scan`, `sanitize`, `scan-action`) and an MCP server
-  (`cordon-mcp`).
+- A CLI (`agent-cordon scan`, `sanitize`, `scan-action`) and an MCP server
+  (`agent-cordon-mcp`).
 
 ## Results
 
@@ -54,7 +54,7 @@ as an MCP server so it plugs into Claude and other agents.
 
 ## Repository contents
 
-### Source (`cordon/`)
+### Source (`agent_cordon/`)
 - `__init__.py` — public API.
 - `models.py` — Finding and ScanResult data types.
 - `normalize.py` — variant building: normalization and recursive decoding.
@@ -65,12 +65,12 @@ as an MCP server so it plugs into Claude and other agents.
 - `sanitize.py` — sanitize, spotlight, wrap_as_data, trust-aware context, guard.
 - `egress.py` — the outbound action firewall and secret redaction.
 - `mcp.py` — MCP / tool-boundary helpers.
-- `server.py` — runs cordon as an MCP server.
+- `server.py` — runs agent_cordon as an MCP server.
 - `cli.py` — command-line interface.
 - `py.typed` — marks the package as typed.
 
 ### Tests (`tests/`)
-- `test_cordon.py` — full feature coverage.
+- `test_agent_cordon.py` — full feature coverage.
 - `test_benchmark.py` — quality gate on detection rate and false positives.
 
 ### Benchmark (`benchmarks/`)
@@ -92,26 +92,26 @@ as an MCP server so it plugs into Claude and other agents.
 
 ## How to push it to GitHub
 
-From inside the project folder, after creating an empty repo named `cordon`:
+From inside the project folder, after creating an empty repo named `agent_cordon`:
 
 ```bash
 # easiest, with the GitHub CLI:
 gh auth login
-gh repo create cordon --public --source=. --remote=origin --push
+gh repo create agent_cordon --public --source=. --remote=origin --push
 
 # or standard git:
-git remote add origin https://github.com/YOUR_USERNAME/cordon.git
+git remote add origin https://github.com/adibhatt1997/agent_cordon.git
 git branch -M main
 git push -u origin main
 ```
 
-Before publishing: replace `YOUR_USERNAME` in `pyproject.toml`, `README.md`, and
-`.github/ISSUE_TEMPLATE/config.yml`, and confirm the `cordon` name is free on
+Before publishing: replace `adibhatt1997` in `pyproject.toml`, `README.md`, and
+`.github/ISSUE_TEMPLATE/config.yml`, and confirm the `agent_cordon` name is free on
 PyPI if you plan to release there.
 
 ## Honest limitations
 
-`cordon` is a strong heuristic layer, not a complete defense. It can miss novel
+`agent_cordon` is a strong heuristic layer, not a complete defense. It can miss novel
 attacks and can occasionally flag benign text. It is meant to be one part of
 defense in depth, alongside least-privilege tools, confirmation on irreversible
 actions, and keeping real secrets out of model context.

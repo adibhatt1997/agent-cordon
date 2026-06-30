@@ -2,7 +2,7 @@
 
 ## Our pledge
 
-We want `cordon` to be a welcoming, harassment-free project for everyone,
+We want `agent_cordon` to be a welcoming, harassment-free project for everyone,
 regardless of experience, background, or identity.
 
 ## Our standards

@@ -1,7 +1,7 @@
 """MCP-native helpers.
 
 The most common modern injection vector is an MCP tool returning attacker
-text that flows straight into the agent's context. These helpers put a cordon
+text that flows straight into the agent's context. These helpers put a agent_cordon
 on that boundary with almost no code change.
 """
 
@@ -21,7 +21,7 @@ def guard_tool_result(
     *,
     on_block: str = "wrap",   # "wrap" | "sanitize" | "raise" | "drop"
 ) -> str:
-    """Run a single MCP/tool result through cordon and return safe content.
+    """Run a single MCP/tool result through agent_cordon and return safe content.
 
     - "wrap":     always wrap as data (recommended default)
     - "sanitize": wrap, and additionally mark/strip detected injections
@@ -32,7 +32,7 @@ def guard_tool_result(
     if on_block == "raise" and result.is_dangerous:
         raise InjectionError(result)
     if on_block == "drop" and result.is_dangerous:
-        return f"[cordon dropped tool output: risk {result.risk}/100, {', '.join(result.categories)}]"
+        return f"[agent_cordon dropped tool output: risk {result.risk}/100, {', '.join(result.categories)}]"
     if on_block == "sanitize":
         from .sanitize import sanitize as _san
         return wrap_as_data(_san(text, result))

@@ -1,13 +1,13 @@
 # Architecture
 
-`cordon` is a small, dependency-free engine with a clear pipeline and clean
+`agent_cordon` is a small, dependency-free engine with a clear pipeline and clean
 extension points. This document explains how a scan flows through the system
 and how to extend each stage.
 
 ## Modules
 
 ```
-cordon/
+agent_cordon/
   models.py      Finding, ScanResult (shared data types)
   normalize.py   variant building: NFKC, confusable folding, de-leet,
                  invisible stripping, recursive base64/hex/url/rot13 decode
@@ -50,7 +50,7 @@ flowchart TD
 
 ### Why variants
 
-A raw-text matcher is trivially bypassed. `cordon` generates several
+A raw-text matcher is trivially bypassed. `agent_cordon` generates several
 *views* of the same input and runs every detector against each:
 
 - **canonical** — `unicodedata.NFKC`, strip zero-width/bidi characters, fold
@@ -114,7 +114,7 @@ scanning, the firewall can still stop the agent from exfiltrating data.
 
 1. **Zero dependencies.** Standard library only. Easy to audit, trivial to vendor.
 2. **Heuristics are honest.** Every finding has a severity and confidence, and
-   the result explains itself. `cordon` never claims certainty.
+   the result explains itself. `agent_cordon` never claims certainty.
 3. **Fast by default, smart on demand.** Regex/heuristics run offline in
    sub-millisecond time; the optional LLM verifier is reserved for ambiguity.
 4. **Both directions.** Guarding input alone is incomplete; the egress firewall

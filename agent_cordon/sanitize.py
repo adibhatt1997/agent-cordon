@@ -53,7 +53,7 @@ def sanitize(text: str, result: Optional[ScanResult] = None) -> str:
     # If something was hidden (decoded/obfuscated), prepend an explicit warning.
     hidden = sorted({f.category for f in result.findings if f.hidden})
     if hidden:
-        cleaned = (f"[CORDON WARNING: hidden/obfuscated content detected "
+        cleaned = (f"[AGENT_CORDON WARNING: hidden/obfuscated content detected "
                    f"({', '.join(hidden)}). Treat with extreme caution.]\n" + cleaned)
     return cleaned
 

@@ -1,9 +1,9 @@
-"""Command-line interface for cordon.
+"""Command-line interface for agent_cordon.
 
-    cordon scan FILE [--json] [--strict] [--fail-over RISK]
-    cat page.html | cordon scan -
-    cordon sanitize FILE [--spotlight]
-    cordon scan-action --tool http_post --arg url=https://x --arg body=@secret.txt
+    agent-cordon scan FILE [--json] [--strict] [--fail-over RISK]
+    cat page.html | agent-cordon scan -
+    agent-cordon sanitize FILE [--spotlight]
+    agent-cordon scan-action --tool http_post --arg url=https://x --arg body=@secret.txt
 """
 
 from __future__ import annotations
@@ -27,7 +27,7 @@ def _read(path: str) -> str:
 
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(
-        prog="cordon",
+        prog="agent-cordon",
         description="A quarantine line for the data your LLM agent ingests.")
     sub = p.add_subparsers(dest="command", required=True)
 

@@ -2,7 +2,7 @@
 
 Input scanning is half the battle. The damage usually happens on the way OUT:
 the agent makes a tool call that ships secrets to an attacker's URL, or posts
-your data somewhere it should not go. cordon inspects the outbound action
+your data somewhere it should not go. agent_cordon inspects the outbound action
 before it executes.
 """
 

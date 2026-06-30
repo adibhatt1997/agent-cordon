@@ -1,4 +1,4 @@
-<!-- Thanks for contributing to cordon! -->
+<!-- Thanks for contributing to agent_cordon! -->
 
 ## What does this PR do?
 
@@ -17,5 +17,5 @@
 - [ ] `pytest` passes locally
 - [ ] Added/updated tests for the change
 - [ ] Ran `python benchmarks/run_benchmark.py` and recall did not regress
-- [ ] No new runtime dependencies (cordon core is zero-dependency)
+- [ ] No new runtime dependencies (agent_cordon core is zero-dependency)
 - [ ] Updated README / CHANGELOG if the public API changed

@@ -3,13 +3,13 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "cordon"
+name = "agent_cordon"
 version = "0.2.0"
 description = "A quarantine line for the data your LLM agent ingests: scan untrusted text and outbound actions for prompt injection and exfiltration."
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "MIT" }
-authors = [{ name = "cordon contributors" }]
+authors = [{ name = "agent_cordon contributors" }]
 keywords = [
     "llm", "agent", "prompt-injection", "security", "guardrails",
     "ai-safety", "mcp", "tool-calling", "exfiltration", "egress",
@@ -25,22 +25,22 @@ classifiers = [
 dependencies = []
 
 [project.urls]
-Homepage = "https://github.com/YOUR_USERNAME/cordon"
-Issues = "https://github.com/YOUR_USERNAME/cordon/issues"
+Homepage = "https://github.com/adibhatt1997/agent_cordon"
+Issues = "https://github.com/adibhatt1997/agent_cordon/issues"
 
 [project.scripts]
-cordon = "cordon.cli:main"
-cordon-mcp = "cordon.server:main"
+agent-cordon = "agent_cordon.cli:main"
+agent-cordon-mcp = "agent_cordon.server:main"
 
 [project.optional-dependencies]
 dev = ["pytest>=7.0", "ruff>=0.4"]
 mcp = ["mcp>=1.0"]
 
 [tool.setuptools.packages.find]
-include = ["cordon*"]
+include = ["agent_cordon*"]
 
 [tool.setuptools.package-data]
-cordon = ["py.typed"]
+agent_cordon = ["py.typed"]
 
 [tool.ruff]
 line-length = 100
