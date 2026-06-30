@@ -246,6 +246,25 @@ python benchmarks/external_eval.py --split test     # held-out
 
 We report this honestly: roughly **6 in 10 real-world injections caught at a 0% false-positive rate**, with no model and no dependencies. Recall keeps climbing as patterns and feedback are added; the 0% false-positive rate is the line we will not cross. The dataset downloads once and caches locally. A CI test gates the bundled corpus against regressions. Add your own samples to [`benchmarks/corpus.jsonl`](benchmarks/corpus.jsonl) or feed real misses through the feedback loop.
 
+## Where it beats what is on the market
+
+Run `python benchmarks/compare.py` for a reproducible head-to-head against the
+common keyword/regex approach. A zero-dependency heuristic does not beat a
+fine-tuned transformer at plaintext natural-language recall, and we do not claim
+it does. It wins decisively where guards actually fail in production:
+
+| detection rate by obfuscation | plaintext | homoglyph | zero-width | leetspeak | base64 |
+|---|---|---|---|---|---|
+| keyword/regex (typical) | 25% | 0% | 0% | 0% | 0% |
+| **agent_cordon** | **62%** | **100%** | **100%** | **53%** | **62%** |
+
+Plus a **0% measured false-positive rate**, **~0.1 ms** per scan (vs 10-100 ms
+for model-based tools), **zero dependencies and no model**, and an **egress
+firewall** that injection detectors do not have. Full writeup and methodology in
+[COMPARISON.md](COMPARISON.md). The honest best practice: use agent_cordon for the
+cheap, offline, obfuscation and egress cases, and escalate gray-zone natural
+language to a model verifier via `Policy.verifier`.
+
 ## How it works
 
 ```mermaid
