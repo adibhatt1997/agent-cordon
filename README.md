@@ -279,25 +279,43 @@ language to a model verifier via `Policy.verifier`.
 
 ## How it works
 
-```mermaid
-flowchart TD
-    A[untrusted text] --> B[build variants]
-    B --> B1[raw]
-    B --> B2[canonical: NFKC + strip invisibles + fold homoglyphs]
-    B --> B3[de-leet]
-    B --> B4[recursive decode: base64 / hex / url / rot13]
-    B1 & B2 & B3 & B4 --> C[run all detectors on every variant]
-    C --> C1[pattern rules - multilingual]
-    C --> C2[role markers]
-    C --> C3[structural pile-up]
-    A --> D[obfuscation detector: invisible / bidi / mixed-script]
-    A --> E[canary tripwires]
-    C1 & C2 & C3 & D & E --> F[dedupe + allowlist + min-confidence]
-    F --> G[severity x confidence scoring + multi-vector bonus]
-    G --> H{gray zone?}
-    H -->|yes + verifier set| I[blend with LLM verifier]
-    H -->|no| J[risk 0..100]
-    I --> J
+```text
+                          untrusted text
+                                │
+            ┌───────────────────┼─────────────────────┐
+            │                   │                      │
+            ▼                   ▼                      ▼
+     build variants     obfuscation detector     canary tripwires
+            │           (invisible / bidi /      (secret / prompt
+            │            mixed-script)            signature echo)
+            │                   │                      │
+   ┌────────┼─────────┐         │                      │
+   ▼        ▼         ▼         │                      │
+  raw   canonical  decoded      │                      │
+        (NFKC +   (base64 /     │                      │
+        fold       hex / url /  │                      │
+        homoglyphs rot13,       │                      │
+        + strip    recursive)   │                      │
+        invisible) + de-leet    │                      │
+   │        │         │         │                      │
+   └────────┴────┬────┘         │                      │
+                 ▼              │                      │
+      run all detectors on      │                      │
+      every variant:            │                      │
+      patterns (multilingual),  │                      │
+      role markers, structural  │                      │
+                 │              │                      │
+                 └──────────────┼──────────────────────┘
+                                ▼
+            dedupe + allowlist + min-confidence
+                                ▼
+         severity × confidence + multi-vector bonus
+                                ▼
+                       ┌─── gray zone? ───┐
+                  yes  │ (verifier set)   │  no
+                       ▼                  ▼
+            blend with your        risk score 0..100
+            verifier (optional)   (is_suspicious / is_dangerous)
 ```
 
 Full detail and extension points in [ARCHITECTURE.md](ARCHITECTURE.md).
