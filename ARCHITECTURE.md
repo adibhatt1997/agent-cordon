@@ -108,7 +108,20 @@ scanning, the firewall can still stop the agent from exfiltrating data.
   depth, allowlist, domains, verifier, telemetry). No fork required.
 - **Second-stage model:** set `Policy.verifier` to any
   `Callable[[str], float]`. It is only invoked for gray-zone risk, keeping the
-  common path fast and offline.
+  common path fast and offline. Bring your own; agent_cordon never calls a model.
+- **Feedback loop:** `feedback.py` records confirmed misses/false alarms and
+  applies them as `Policy.exact_attack` / `Policy.exact_benign` signatures.
+  Matching uses `normalize.signature` (the same folding as detection), so
+  cosmetic variants of a learned input are still recognized. The scanner checks
+  these signatures last, so a human label always wins over a heuristic.
+
+## Resource safety
+
+The scanner runs on attacker-controlled text, so it bounds its own work:
+`max_input_chars` caps how much text is scanned, and `max_decode_variants` /
+`max_blob_chars` plus bounded recursion stop decode bombs and pathological
+nesting. Detection patterns use bounded quantifiers to avoid catastrophic
+backtracking. A multi-hundred-KB hostile input scans in tens of milliseconds.
 
 ## Design principles
 

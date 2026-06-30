@@ -23,7 +23,7 @@ from .detectors import (
     StructuralDetector,
 )
 from .models import Finding, ScanResult
-from .normalize import build_variants, canonical
+from .normalize import build_variants, canonical, signature
 from .policy import DEFAULT_POLICY, Policy
 from .rules import RULES
 
@@ -74,6 +74,11 @@ def scan(
     policy = policy or DEFAULT_POLICY
     canaries = canaries if canaries is not None else default_registry
 
+    # Bound the work: attacker-controlled text can be arbitrarily large, and
+    # decoding it recursively is a denial-of-service vector. Scan at most
+    # max_input_chars; the original text is still returned untouched.
+    scan_text = text[:policy.max_input_chars] if policy.max_input_chars else text
+
     pattern = PatternDetector(list(RULES) + list(policy.extra_rules))
     variant_detectors = [pattern]
     if policy.enable_role_markers:
@@ -82,11 +87,13 @@ def scan(
         variant_detectors.append(StructuralDetector())
 
     variants = build_variants(
-        text,
+        scan_text,
         enable_confusables=policy.enable_confusables,
         enable_deleet=policy.enable_deleet,
         enable_decoding=policy.enable_decoding,
         max_decode_depth=policy.max_decode_depth,
+        max_decode_variants=policy.max_decode_variants,
+        max_blob_chars=policy.max_blob_chars,
     )
 
     raw_findings: list[Finding] = []
@@ -98,9 +105,9 @@ def scan(
                     conf = min(1.0, conf * 1.15)
                 raw_findings.append(_with_conf(f, conf))
 
-    # obfuscation + canaries run on the raw text
-    raw_findings.extend(ObfuscationDetector().detect(text, "raw"))
-    raw_findings.extend(canaries.scan(text, "raw"))
+    # obfuscation + canaries run on the (capped) raw text
+    raw_findings.extend(ObfuscationDetector().detect(scan_text, "raw"))
+    raw_findings.extend(canaries.scan(scan_text, "raw"))
 
     # noise control
     filtered = [
@@ -110,20 +117,39 @@ def scan(
     findings = _dedupe(filtered)
     findings.sort(key=lambda x: (-x.severity, -x.confidence))
 
-    risk = _score(findings)
+    # Feedback loop: inputs a human has already labeled take precedence over the
+    # heuristics, so a confirmed mistake never recurs. Benign wins ties.
+    sig = signature(scan_text) if (policy.exact_benign or policy.exact_attack) else None
+    learned_benign = sig is not None and sig in policy.exact_benign
+    learned_attack = sig is not None and sig in policy.exact_attack and not learned_benign
 
-    # optional second-stage verifier for gray-zone content
+    if learned_benign:
+        findings = []
+    elif learned_attack and not any(f.rule_id == "feedback_known_attack" for f in findings):
+        findings.insert(0, Finding(
+            detector="feedback", rule_id="feedback_known_attack",
+            category="instruction_override",
+            description="Matches an attack confirmed via the feedback loop",
+            severity=5, confidence=1.0, snippet=scan_text[:80], layer="raw",
+        ))
+
+    risk = _score(findings)
+    if learned_attack:
+        risk = max(risk, policy.dangerous_threshold)
+
+    # optional second-stage verifier for gray-zone content (skipped for learned cases)
     lo, hi = policy.verify_band
-    if policy.verifier is not None and lo <= risk < hi:
+    if policy.verifier is not None and not learned_benign and not learned_attack \
+            and lo <= risk < hi:
         try:
-            v_risk = float(policy.verifier(canonical(text)))
+            v_risk = float(policy.verifier(canonical(scan_text)))
             v_risk = max(0.0, min(1.0, v_risk)) * 100
             risk = int(round(0.5 * risk + 0.5 * v_risk))  # blend heuristic + verifier
         except Exception:
             pass  # verifier must never break the scan
 
     result = ScanResult(
-        text=text, normalized=canonical(text), findings=findings, risk=risk,
+        text=text, normalized=canonical(scan_text), findings=findings, risk=risk,
         variants_scanned=len(variants),
         suspicious_threshold=policy.suspicious_threshold,
         dangerous_threshold=policy.dangerous_threshold,

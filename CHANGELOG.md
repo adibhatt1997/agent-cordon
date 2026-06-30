@@ -3,6 +3,35 @@
 All notable changes to agent_cordon are documented here. Format roughly follows
 Keep a Changelog; this project uses semantic versioning.
 
+## [0.3.0]
+
+Hardening, honest evaluation, and a feedback loop.
+
+### Added
+- **Feedback loop** (`FeedbackStore`): record a missed attack or a false alarm
+  and the loop guarantees that exact case (and cosmetic variants) is classified
+  correctly on every future scan. `Policy.exact_attack` / `Policy.exact_benign`
+  carry the learned signatures; `benchmarks/feedback_retrain.py` re-applies them
+  and gates against regressions.
+- **Async API**: `ascan`, `ascan_action`, `aguard_tool_result` run the scan off
+  the event loop via `asyncio.to_thread`.
+- **Denial-of-service hardening**: input length cap (`max_input_chars`) plus
+  decode-bomb limits (`max_decode_variants`, `max_blob_chars`) and bounded
+  recursion, so scanning attacker-controlled text stays fast and predictable.
+- **Config loading** with zero dependencies: `Policy.from_env`,
+  `Policy.from_file` (JSON), and `Policy.from_mapping`.
+- **External benchmark** (`benchmarks/external_eval.py`): evaluates against the
+  public `deepset/prompt-injections` dataset over the standard library, and the
+  benchmark now reports per-scan latency (p50/p95/mean).
+- Broadened, tuned detection rules (override/task-switch/persona/prompt-leak/
+  context-override/output-manipulation families, English + German + Spanish +
+  Croatian), lifting held-out recall on the public dataset from ~10% to ~62% at
+  a 0% false-positive rate.
+- `examples/structured_logging.py` for the telemetry hook.
+
+### Notes
+- Still zero runtime dependencies. No external model or API is ever called.
+
 ## [0.2.0]
 
 The advanced engine. Renamed from the original prototype to `agent_cordon`.

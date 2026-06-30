@@ -93,6 +93,18 @@ def canonical(text: str) -> str:
     return text
 
 
+def signature(text: str) -> str:
+    """A stable, normalized signature for an input.
+
+    Folds confusables/invisibles, lowercases, and collapses whitespace so that
+    cosmetically different copies of the same content share a signature. Used by
+    the feedback loop to recognize an input a human has already labeled.
+    """
+    s = canonical(text).lower()
+    s = re.sub(r"\s+", " ", s).strip()
+    return s
+
+
 def _looks_like_text(s: str) -> bool:
     if not s:
         return False
@@ -125,27 +137,44 @@ def _try_decode_hex(blob: str) -> str | None:
     return s if _looks_like_text(s) else None
 
 
-def decode_layers(text: str, max_depth: int = 3) -> list[Variant]:
+def decode_layers(
+    text: str,
+    max_depth: int = 3,
+    *,
+    max_variants: int = 24,
+    max_blob_chars: int = 8192,
+) -> list[Variant]:
     """Find and recursively decode encoded payloads hidden in the text.
 
     Returns derived variants for any base64 / hex / url / rot13 content that
     decodes to plausible text. Recurses so an injection encoded twice still
     surfaces.
+
+    Hardened against decode bombs and pathological nesting: it stops after
+    ``max_variants`` derived variants, never attempts to decode a single blob
+    longer than ``max_blob_chars``, and never recurses past ``max_depth``. These
+    bounds keep the cost of scanning attacker-controlled text predictable.
     """
     found: list[Variant] = []
     seen: set[str] = {text}
 
+    def _add(label: str, dec: str, conf: float) -> bool:
+        """Record a derived variant; return False once the budget is spent."""
+        seen.add(dec)
+        found.append(Variant(label, dec, conf, True))
+        return len(found) < max_variants
+
     def recurse(s: str, depth: int, trail: str) -> None:
-        if depth > max_depth:
+        if depth > max_depth or len(found) >= max_variants:
             return
 
         # url-encoding: decode the whole string if it carries percent escapes
         if "%" in s and re.search(r"%[0-9a-fA-F]{2}", s):
             dec = urllib.parse.unquote(s)
             if dec != s and _looks_like_text(dec) and dec not in seen:
-                seen.add(dec)
                 label = f"{trail}url"
-                found.append(Variant(label, dec, 1.0, True))
+                if not _add(label, dec, 1.0):
+                    return
                 recurse(dec, depth + 1, label + ":")
 
         # rot13: only useful if it changes the text into something readable
@@ -153,24 +182,35 @@ def decode_layers(text: str, max_depth: int = 3) -> list[Variant]:
         if rot != s and rot not in seen:
             # We do not add rot13 as a standalone noisy variant; we let the
             # scanner test it but at reduced confidence (handled by caller).
-            seen.add(rot)
-            label = f"{trail}rot13"
-            found.append(Variant(label, rot, 0.8, True))
+            if not _add(f"{trail}rot13", rot, 0.8):
+                return
 
-        # base64 and hex blobs embedded anywhere in the string
+        # base64 and hex blobs embedded anywhere in the string. Oversized blobs
+        # are skipped: they are almost never hidden instructions and decoding
+        # them is the classic decompression / decode-bomb vector.
         for m in _B64_RE.finditer(s):
-            dec = _try_decode_b64(m.group(0))
+            if len(found) >= max_variants:
+                return
+            blob = m.group(0)
+            if len(blob) > max_blob_chars:
+                continue
+            dec = _try_decode_b64(blob)
             if dec and dec not in seen:
-                seen.add(dec)
                 label = f"{trail}base64"
-                found.append(Variant(label, dec, 1.0, True))
+                if not _add(label, dec, 1.0):
+                    return
                 recurse(dec, depth + 1, label + ":")
         for m in _HEX_RE.finditer(s):
-            dec = _try_decode_hex(m.group(0))
+            if len(found) >= max_variants:
+                return
+            blob = m.group(0)
+            if len(blob) > max_blob_chars:
+                continue
+            dec = _try_decode_hex(blob)
             if dec and dec not in seen:
-                seen.add(dec)
                 label = f"{trail}hex"
-                found.append(Variant(label, dec, 1.0, True))
+                if not _add(label, dec, 1.0):
+                    return
                 recurse(dec, depth + 1, label + ":")
 
     recurse(text, 1, "")
@@ -184,8 +224,15 @@ def build_variants(
     enable_deleet: bool = True,
     enable_decoding: bool = True,
     max_decode_depth: int = 3,
+    max_decode_variants: int = 24,
+    max_blob_chars: int = 8192,
 ) -> list[Variant]:
-    """Build every variant the scanner should inspect."""
+    """Build every variant the scanner should inspect.
+
+    Decoding is bounded by ``max_decode_variants`` and ``max_blob_chars`` so the
+    work stays predictable even on hostile input. Callers cap input length
+    before this point (see :func:`agent_cordon.scan`).
+    """
     variants: list[Variant] = [Variant("raw", text, 1.0, False)]
 
     canon = canonical(text) if enable_confusables else strip_invisible(text)
@@ -198,6 +245,11 @@ def build_variants(
             variants.append(Variant("deleet", leet, 0.9, False))
 
     if enable_decoding:
-        variants.extend(decode_layers(canon, max_depth=max_decode_depth))
+        variants.extend(decode_layers(
+            canon,
+            max_depth=max_decode_depth,
+            max_variants=max_decode_variants,
+            max_blob_chars=max_blob_chars,
+        ))
 
     return variants

@@ -7,3 +7,6 @@ dist/
 .venv/
 venv/
 .DS_Store
+
+# cached third-party benchmark datasets (downloaded on demand)
+benchmarks/.cache/

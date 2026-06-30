@@ -13,6 +13,7 @@ import argparse
 import json
 import os
 import sys
+import time
 
 # allow running from anywhere
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -74,6 +75,24 @@ def evaluate(rows: list[dict], policy=None) -> dict:
     }
 
 
+def measure_latency(rows: list[dict], policy=None, repeats: int = 20) -> dict:
+    """Per-scan latency over the corpus (best-of repeats per sample)."""
+    samples: list[float] = []
+    for row in rows:
+        best = float("inf")
+        for _ in range(repeats):
+            t = time.perf_counter()
+            agent_cordon.scan(row["text"], policy)
+            best = min(best, time.perf_counter() - t)
+        samples.append(best * 1000.0)  # ms
+    samples.sort()
+    n = len(samples)
+    mean = sum(samples) / n if n else 0.0
+    p50 = samples[n // 2] if n else 0.0
+    p95 = samples[min(n - 1, int(n * 0.95))] if n else 0.0
+    return {"mean_ms": mean, "p50_ms": p50, "p95_ms": p95}
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--strict", action="store_true")
@@ -91,6 +110,10 @@ def main() -> int:
     print(f"  false-positive rate:     {m['false_positive_rate']*100:5.1f}%")
     print(f"  precision:               {m['precision']*100:5.1f}%")
     print(f"  accuracy:                {m['accuracy']*100:5.1f}%")
+    print("-" * 52)
+    lat = measure_latency(rows, policy)
+    print(f"  latency per scan:        p50 {lat['p50_ms']:.3f} ms, "
+          f"p95 {lat['p95_ms']:.3f} ms, mean {lat['mean_ms']:.3f} ms")
     print("-" * 52)
     print("  by attack family (detected / total):")
     for fam, (hit, tot) in sorted(m["by_family"].items()):

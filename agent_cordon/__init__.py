@@ -20,7 +20,9 @@ Quickstart:
         ...
 """
 
+from .async_api import aguard_tool_result, ascan, ascan_action
 from .canary import CanaryRegistry, mint_canary, register_canary
+from .feedback import FeedbackEntry, FeedbackStore
 from .egress import ActionVerdict, find_secrets, redact_secrets, scan_action
 from .mcp import cordon_tool, guard_tool_result
 from .models import Finding, ScanResult
@@ -36,10 +38,12 @@ from .sanitize import (
 )
 from .scanner import scan
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 __all__ = [
     # core
     "scan", "ScanResult", "Finding",
+    # async
+    "ascan", "ascan_action", "aguard_tool_result",
     # policy
     "Policy", "DEFAULT_POLICY", "compile_allowlist",
     # sanitize / context
@@ -51,5 +55,7 @@ __all__ = [
     "register_canary", "mint_canary", "CanaryRegistry",
     # mcp
     "guard_tool_result", "cordon_tool",
+    # feedback loop
+    "FeedbackStore", "FeedbackEntry",
     "__version__",
 ]

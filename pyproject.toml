@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agent_cordon"
-version = "0.2.0"
+version = "0.3.0"
 description = "A quarantine line for the data your LLM agent ingests: scan untrusted text and outbound actions for prompt injection and exfiltration."
 readme = "README.md"
 requires-python = ">=3.9"
