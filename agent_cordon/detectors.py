@@ -7,7 +7,7 @@ aggregates the results. New detectors only need a `name` and a `detect()`.
 from __future__ import annotations
 
 import re
-from typing import Iterable
+from collections.abc import Iterable
 
 from .models import Finding
 from .normalize import count_invisible, count_mixed_script_words

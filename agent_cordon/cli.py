@@ -21,7 +21,7 @@ from .scanner import scan
 def _read(path: str) -> str:
     if path == "-":
         return sys.stdin.read()
-    with open(path, "r", encoding="utf-8", errors="replace") as fh:
+    with open(path, encoding="utf-8", errors="replace") as fh:
         return fh.read()
 
 

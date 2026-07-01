@@ -5,7 +5,6 @@ Shows the two boundaries agent_cordon protects:
   2. the agent's outbound action going OUT     -> scan_action (egress firewall)
 """
 
-import agent_cordon
 from agent_cordon import Policy, cordon_tool, scan_action
 
 

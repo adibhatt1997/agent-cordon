@@ -10,8 +10,10 @@ from __future__ import annotations
 import json
 import os
 import re
+from collections.abc import Sequence
 from dataclasses import dataclass, field
-from typing import Callable, Optional, Pattern, Sequence
+from re import Pattern
+from typing import Callable, Optional
 
 from .rules import Rule
 
@@ -70,13 +72,13 @@ class Policy:
         return any(p.search(snippet) for p in self.allowlist)
 
     @classmethod
-    def strict(cls) -> "Policy":
+    def strict(cls) -> Policy:
         """Lower thresholds and full decoding. Use on fully untrusted sources."""
         return cls(suspicious_threshold=15, dangerous_threshold=45,
                    min_confidence=0.2, max_decode_depth=4)
 
     @classmethod
-    def lenient(cls) -> "Policy":
+    def lenient(cls) -> Policy:
         """Higher thresholds. Use when false positives are costly."""
         return cls(suspicious_threshold=35, dangerous_threshold=70,
                    min_confidence=0.45)
@@ -94,7 +96,7 @@ class Policy:
     )
 
     @classmethod
-    def from_mapping(cls, data: dict, *, base: "Optional[Policy]" = None) -> "Policy":
+    def from_mapping(cls, data: dict, *, base: Optional[Policy] = None) -> Policy:
         """Build a Policy from a plain dict (e.g. parsed JSON).
 
         Only known scalar knobs plus ``allowed_domains`` / ``blocked_domains`` /
@@ -114,14 +116,14 @@ class Policy:
         return _replace_policy(p, kwargs)
 
     @classmethod
-    def from_file(cls, path: str, *, base: "Optional[Policy]" = None) -> "Policy":
+    def from_file(cls, path: str, *, base: Optional[Policy] = None) -> Policy:
         """Load a Policy from a JSON config file."""
-        with open(path, "r", encoding="utf-8") as fh:
+        with open(path, encoding="utf-8") as fh:
             return cls.from_mapping(json.load(fh), base=base)
 
     @classmethod
     def from_env(cls, prefix: str = "AGENT_CORDON_", *,
-                 base: "Optional[Policy]" = None) -> "Policy":
+                 base: Optional[Policy] = None) -> Policy:
         """Load knobs from environment variables, e.g. ``AGENT_CORDON_STRICT=1``.
 
         ``AGENT_CORDON_STRICT`` / ``AGENT_CORDON_LENIENT`` pick a preset; any
@@ -149,12 +151,12 @@ class Policy:
         return cls.from_mapping(data, base=p)
 
 
-def _replace_policy(p: "Policy", kwargs: dict) -> "Policy":
+def _replace_policy(p: Policy, kwargs: dict) -> Policy:
     from dataclasses import replace
     return replace(p, **kwargs)
 
 
-def _env_bool(raw: "Optional[str]") -> bool:
+def _env_bool(raw: Optional[str]) -> bool:
     return bool(raw) and raw.strip().lower() in ("1", "true", "yes", "on")
 
 

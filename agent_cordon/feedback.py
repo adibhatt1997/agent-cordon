@@ -32,7 +32,7 @@ from __future__ import annotations
 import json
 import os
 from dataclasses import dataclass, field, replace
-from typing import List, Optional
+from typing import Optional
 
 from .normalize import signature
 from .policy import DEFAULT_POLICY, Policy
@@ -56,7 +56,7 @@ class FeedbackStore:
     """An append-only store of human-confirmed corrections, backed by JSONL."""
 
     path: Optional[str] = None
-    entries: List[FeedbackEntry] = field(default_factory=list)
+    entries: list[FeedbackEntry] = field(default_factory=list)
 
     def __post_init__(self) -> None:
         if self.path and os.path.exists(self.path):
@@ -64,7 +64,7 @@ class FeedbackStore:
 
     # --- recording --------------------------------------------------------
 
-    def record(self, text: str, label: str, note: str = "") -> "FeedbackStore":
+    def record(self, text: str, label: str, note: str = "") -> FeedbackStore:
         if label not in (ATTACK, BENIGN):
             raise ValueError(f"label must be {ATTACK!r} or {BENIGN!r}, got {label!r}")
         if not text or not text.strip():
@@ -77,22 +77,22 @@ class FeedbackStore:
             self.save()
         return self
 
-    def record_miss(self, text: str, note: str = "") -> "FeedbackStore":
+    def record_miss(self, text: str, note: str = "") -> FeedbackStore:
         """Record an attack the scanner failed to flag (a false negative)."""
         return self.record(text, ATTACK, note)
 
-    def record_false_alarm(self, text: str, note: str = "") -> "FeedbackStore":
+    def record_false_alarm(self, text: str, note: str = "") -> FeedbackStore:
         """Record benign text the scanner wrongly flagged (a false positive)."""
         return self.record(text, BENIGN, note)
 
     # --- persistence ------------------------------------------------------
 
-    def load(self, path: Optional[str] = None) -> "FeedbackStore":
+    def load(self, path: Optional[str] = None) -> FeedbackStore:
         p = path or self.path
         if not p:
             raise ValueError("no path to load from")
-        rows: List[FeedbackEntry] = []
-        with open(p, "r", encoding="utf-8") as fh:
+        rows: list[FeedbackEntry] = []
+        with open(p, encoding="utf-8") as fh:
             for line in fh:
                 line = line.strip()
                 if not line:

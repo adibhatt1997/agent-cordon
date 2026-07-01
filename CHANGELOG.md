@@ -25,8 +25,10 @@ Hardening, honest evaluation, and a feedback loop.
   benchmark now reports per-scan latency (p50/p95/mean).
 - Broadened, tuned detection rules (override/task-switch/persona/prompt-leak/
   context-override/output-manipulation families, English + German + Spanish +
-  Croatian), lifting held-out recall on the public dataset from ~10% to ~62% at
-  a 0% false-positive rate.
+  Croatian), lifting held-out recall on the deepset test split from ~10% to
+  ~53% at a 0% false-positive rate. Role-play framing is a corroborating signal,
+  not a standalone trigger, to keep precision high (95-100% across three
+  independent public datasets).
 - `examples/structured_logging.py` for the telemetry hook.
 
 ### Notes

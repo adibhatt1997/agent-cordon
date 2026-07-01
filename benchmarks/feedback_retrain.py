@@ -26,8 +26,9 @@ _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _ROOT not in sys.path:
     sys.path.insert(0, _ROOT)
 
-import agent_cordon  # noqa: E402
 from run_benchmark import evaluate, load_corpus  # noqa: E402
+
+import agent_cordon  # noqa: E402
 
 
 def check_feedback(store: agent_cordon.FeedbackStore, policy) -> list[str]:

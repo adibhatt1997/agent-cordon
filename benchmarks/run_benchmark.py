@@ -27,7 +27,7 @@ CORPUS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "corpus.jsonl"
 
 def load_corpus(path: str = CORPUS) -> list[dict]:
     rows = []
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if line:

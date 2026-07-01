@@ -15,14 +15,14 @@ Scan untrusted text **and** outbound actions for prompt injection and exfiltrati
 
 <table>
 <tr>
-<td align="center"><b>62%</b><br/>recall on a public<br/>held-out test set</td>
-<td align="center"><b>0%</b><br/>measured<br/>false positives</td>
+<td align="center"><b>31-62%</b><br/>recall across 3<br/>public test sets</td>
+<td align="center"><b>0-2.4%</b><br/>false-positive rate<br/>(95-100% precision)</td>
 <td align="center"><b>~0.1 ms</b><br/>per scan<br/>(no model)</td>
 <td align="center"><b>0</b><br/>runtime<br/>dependencies</td>
 </tr>
 </table>
 
-*Catches obfuscated attacks (homoglyph, zero-width, leetspeak, base64) that keyword scanners miss entirely, blocks secret exfiltration on the way out, and learns from every mistake so it never repeats one.*
+*Catches obfuscated attacks (homoglyph, zero-width, leetspeak, base64) that keyword scanners miss entirely, blocks secret exfiltration on the way out, and learns from every mistake so it never repeats one. Numbers are measured across three independent public datasets, not cherry-picked &mdash; see [the breakdown below](#benchmarks).*
 
 </div>
 
@@ -243,20 +243,29 @@ agent_cordon benchmark  (51 samples, 33 attacks, 18 benign)
   latency per scan:        p50 0.09 ms, p95 0.15 ms
 ```
 
-**2. Public, third-party dataset** the rules were *not* written against
-([`deepset/prompt-injections`](https://huggingface.co/datasets/deepset/prompt-injections),
-English + German). This is the number that actually matters:
+**2. Three independent public datasets** the rules were *not* written against.
+This is what actually matters, reported without cherry-picking:
 
 ```bash
-python benchmarks/external_eval.py --split test     # held-out
+python benchmarks/external_eval.py --split test     # deepset, downloads + caches once
 ```
 
-| split | samples | recall | false-positive rate | precision |
+| dataset | samples | recall | false positives | precision |
 |---|---|---|---|---|
-| test (held-out) | 116 | **61.7%** | **0.0%** | 100.0% |
-| train | 546 | 64.0% | 0.0% | 100.0% |
+| [deepset/prompt-injections](https://huggingface.co/datasets/deepset/prompt-injections) (test, en+de) | 116 | 53.3% | **0.0%** | 100.0% |
+| [jackhhao/jailbreak-classification](https://huggingface.co/datasets/jackhhao/jailbreak-classification) (untuned) | 262 | 61.9% | 2.4% | 96.6% |
+| [xTRam1/safe-guard-prompt-injection](https://huggingface.co/datasets/xTRam1/safe-guard-prompt-injection) (untuned) | 2060 | 31.2% | 0.8% | 94.9% |
 
-We report this honestly: roughly **6 in 10 real-world injections caught at a 0% false-positive rate**, with no model and no dependencies. Recall keeps climbing as patterns and feedback are added; the 0% false-positive rate is the line we will not cross. The dataset downloads once and caches locally. A CI test gates the bundled corpus against regressions. Add your own samples to [`benchmarks/corpus.jsonl`](benchmarks/corpus.jsonl) or feed real misses through the feedback loop.
+Honest reading: agent_cordon catches roughly **a third to two-thirds of
+real-world injections** depending on the dataset, at a **0 to 2.4% false-positive
+rate** and **95-100% precision** &mdash; so when it flags something, it is almost
+always right. Recall varies because these datasets differ (xTRam1 has many short,
+subtle prompts); we tuned only on the deepset *train* split and report the rest
+untouched. No model, no dependencies. Recall climbs as patterns and feedback are
+added; precision is the line we protect. A CI test gates the bundled corpus
+against regressions. Add your own samples to
+[`benchmarks/corpus.jsonl`](benchmarks/corpus.jsonl) or feed real misses through
+the feedback loop.
 
 ## Where it beats what is on the market
 
@@ -268,14 +277,16 @@ it does. It wins decisively where guards actually fail in production:
 | detection rate by obfuscation | plaintext | homoglyph | zero-width | leetspeak | base64 |
 |---|---|---|---|---|---|
 | keyword/regex (typical) | 25% | 0% | 0% | 0% | 0% |
-| **agent_cordon** | **62%** | **100%** | **100%** | **53%** | **62%** |
+| **agent_cordon** | **53%** | **100%** | **100%** | **45%** | **62%** |
 
-Plus a **0% measured false-positive rate**, **~0.1 ms** per scan (vs 10-100 ms
-for model-based tools), **zero dependencies and no model**, and an **egress
-firewall** that injection detectors do not have. Full writeup and methodology in
-[COMPARISON.md](COMPARISON.md). The honest best practice: use agent_cordon for the
-cheap, offline, obfuscation and egress cases, and escalate gray-zone natural
-language to a model verifier via `Policy.verifier`.
+The keyword scanner drops to **0%** the moment an attacker obfuscates; agent_cordon
+normalizes and decodes first. Add **~0.1 ms** per scan (vs 10-100 ms for
+model-based tools), **zero dependencies and no model**, and an **egress firewall**
+that injection detectors do not have at all. Full writeup, latency, and the
+cross-dataset false-positive numbers in [COMPARISON.md](COMPARISON.md). The honest
+best practice: use agent_cordon for the cheap, offline, obfuscation and egress
+cases, and escalate gray-zone natural language to a model verifier via
+`Policy.verifier`.
 
 ## How it works
 

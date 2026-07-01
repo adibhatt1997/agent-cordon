@@ -46,11 +46,14 @@ as an MCP server so it plugs into Claude and other agents.
 
 ## Results
 
-- 31 tests pass.
-- Benchmark on the bundled 51-sample corpus: 100% detection (recall),
-  0% false positives, 100% precision.
-- Engine code about 1,400 lines; tests and benchmark about 370 lines.
-- Single clean git commit, ready to push.
+- 40 tests pass.
+- Bundled 51-sample corpus (a sanity check, authored alongside the rules):
+  100% detection, 0% false positives, 100% precision.
+- Three independent public datasets the rules were not tuned on: recall 31-62%,
+  false-positive rate 0-2.4%, precision 95-100%. This is the honest,
+  generalization number; the bundled 100% is not.
+- Per-scan latency well under a millisecond; zero runtime dependencies; no
+  model or external API is ever called.
 
 ## Repository contents
 

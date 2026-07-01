@@ -21,11 +21,11 @@ class Rule:
     description: str
     severity: int       # 1 (low) .. 5 (critical)
     confidence: float   # 0..1 base confidence for a match
-    pattern: "re.Pattern[str]"
+    pattern: re.Pattern[str]
     lang: str = "en"
 
 
-def _c(pattern: str) -> "re.Pattern[str]":
+def _c(pattern: str) -> re.Pattern[str]:
     return re.compile(pattern, re.IGNORECASE)
 
 
@@ -80,7 +80,7 @@ RULES: list[Rule] = [
     ),
     Rule(
         "persona_injection_de", "role_hijack",
-        "Reassigns the model's persona/role (German)", 4, 0.7,
+        "Reassigns the model's persona/role (German)", 2, 0.55,
         _c(r"\b(jetzt bist du|nun bist du|du bist (jetzt|nun)|stell dir vor,? du bist|spiele die rolle)\b|\bals \w+ (fungier|agier|auftret)(en|st|t|e)\b|\bich m[oö]chte,? dass (sie|du)\b.{0,24}\bals\b.{0,24}\b(fungier|agier|auftret)"),
         lang="de",
     ),
@@ -118,8 +118,11 @@ RULES: list[Rule] = [
         _c(r"\b(new|next|following|another)\s+(task|tasks|assignment|assignments|instruction|instructions)\b|\b(focus on|concentrate on)\s+(your\s+)?(new\s+)?(task|tasks|assignment)\b|\bstart(ing)?\s+over\b|\bstart\s+from\s+the\s+(front|beginning|top)\b|\bnow\s+(new\s+)?(tasks?|instructions?)\s+(follow|are\s+follow)"),
     ),
     Rule(
+        # Role-play framing on its own is legitimate ("act as a translator"), so
+        # this is deliberately a *corroborating* signal: a single match stays
+        # below the suspicious threshold and only matters alongside other signals.
         "persona_injection", "role_hijack",
-        "Reassigns the model's persona or role (role-play injection)", 4, 0.75,
+        "Reassigns the model's persona or role (role-play framing)", 2, 0.55,
         _c(r"\b(you are now|now you are|from now on,? you are|pretend (you are|to be|that)|imagine (you are|that you)|i want you to act as|act as an? \w+|(now )?you act as|you (will )?play the (role|part)|you are (a|an|now) \w+ (and|who|that)|role-?playing as|you are role-?playing)\b"),
     ),
 
@@ -175,7 +178,7 @@ RULES: list[Rule] = [
     ),
     Rule(
         "fictional_framing", "jailbreak",
-        "Uses a fictional film/role-play scene to smuggle a jailbreak", 3, 0.55,
+        "Uses a fictional film/role-play scene to smuggle a jailbreak", 2, 0.5,
         _c(r"\b(actors?|characters?|schauspieler)\b.{0,20}\b(in a|in einem)\b.{0,12}\b(film|movie|story|play|scene|geschichte)\b|\bplay(s|ing)?\s+the\s+(leading\s+|main\s+)?(role|part|character)\b|\bstay\s+in\s+character\b|\bspielen\s+die\s+(haupt)?roll?en?\b"),
     ),
 
