@@ -6,8 +6,8 @@
 
 Scan untrusted text **and** outbound actions for prompt injection and exfiltration, see through obfuscation that fools regex-only tools, and guard the MCP / tool-output boundary where agents actually get hijacked.
 
-[![CI](https://github.com/adibhatt1997/agent_cordon/actions/workflows/ci.yml/badge.svg)](https://github.com/adibhatt1997/agent_cordon/actions/workflows/ci.yml)
-[![PyPI](https://img.shields.io/badge/pypi-v0.3.0-blue.svg)](https://pypi.org/project/agent_cordon/)
+[![CI](https://github.com/adibhatt1997/agent-cordon/actions/workflows/ci.yml/badge.svg)](https://github.com/adibhatt1997/agent-cordon/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/badge/pypi-v0.3.0-blue.svg)](https://pypi.org/project/agent-cordon/)
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/)
 [![Tests](https://img.shields.io/badge/tests-40%20passing-brightgreen.svg)](tests/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
@@ -30,7 +30,9 @@ Scan untrusted text **and** outbound actions for prompt injection and exfiltrati
 
 ## The problem
 
-Most prompt-injection tools scan an input string for jailbreak phrases. Attackers stopped writing plaintext jailbreaks a long time ago, and the real damage happens on the way **out**, when a hijacked agent ships your data somewhere. `agent_cordon` is built for how agents actually get attacked in 2026:
+Most prompt-injection tools check one thing: the user's message, for known jailbreak phrases. That is not where agents actually get hijacked. The dangerous text usually rides in on a tool result, a scraped web page, a RAG chunk, or an MCP response &mdash; content the model tends to trust the moment it reads it. And the real harm lands on the way *out*, when the hijacked agent quietly ships your data somewhere it should not go.
+
+So agent_cordon watches both doors &mdash; what comes in, and what goes out:
 
 ```text
    web page ─┐                                         ┌─► agent reads SAFE data
@@ -45,7 +47,7 @@ Most prompt-injection tools scan an input string for jailbreak phrases. Attacker
 
 ## Start here — the one thing that matters
 
-If you read nothing else: **wrap the untrusted data your agent reads, and check the actions it takes.** Two lines cover the attack surface that hijacks real agents.
+If you take one thing from this page, take this: wrap the untrusted data your agent reads, and check the actions it takes. Two calls cover the surface that actually gets exploited.
 
 ```python
 import agent_cordon
@@ -90,7 +92,7 @@ pip install agent_cordon
 From source:
 
 ```bash
-git clone https://github.com/adibhatt1997/agent_cordon
+git clone https://github.com/adibhatt1997/agent-cordon
 cd agent_cordon
 pip install -e ".[dev]"
 pytest          # 40 tests, well under a second

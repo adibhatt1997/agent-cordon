@@ -1,13 +1,17 @@
-"""The agent-cordon scanning engine.
+"""The scanning engine that ties everything together.
 
-Pipeline:
+The trick that makes this catch obfuscated attacks: instead of matching the raw
+text once, we build a handful of "variants" of it (normalized, de-leeted,
+decoded) and run every detector against all of them. An injection that is
+invisible in the raw bytes shows up plainly once you decode it.
+
     text
       -> build variants (raw, canonical, de-leet, base64/hex/url/rot13 decoded)
       -> run every detector over every variant
       -> run canary tripwires
       -> de-duplicate, drop allowlisted / low-confidence noise
-      -> severity x confidence scoring with multi-vector bonus
-      -> optional second-stage verifier for gray-zone content
+      -> severity x confidence scoring with a multi-vector bonus
+      -> optional second-stage verifier for the gray zone
       -> ScanResult
 """
 

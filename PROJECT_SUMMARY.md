@@ -103,7 +103,7 @@ gh auth login
 gh repo create agent_cordon --public --source=. --remote=origin --push
 
 # or standard git:
-git remote add origin https://github.com/adibhatt1997/agent_cordon.git
+git remote add origin https://github.com/adibhatt1997/agent-cordon.git
 git branch -M main
 git push -u origin main
 ```

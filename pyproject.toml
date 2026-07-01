@@ -25,8 +25,8 @@ classifiers = [
 dependencies = []
 
 [project.urls]
-Homepage = "https://github.com/adibhatt1997/agent_cordon"
-Issues = "https://github.com/adibhatt1997/agent_cordon/issues"
+Homepage = "https://github.com/adibhatt1997/agent-cordon"
+Issues = "https://github.com/adibhatt1997/agent-cordon/issues"
 
 [project.scripts]
 agent-cordon = "agent_cordon.cli:main"

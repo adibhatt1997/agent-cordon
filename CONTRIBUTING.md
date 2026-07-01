@@ -15,7 +15,7 @@ Thanks for helping make agents safer. `agent_cordon` is meant to be community-ow
 ## Dev setup
 
 ```bash
-git clone https://github.com/adibhatt1997/agent_cordon
+git clone https://github.com/adibhatt1997/agent-cordon
 cd agent_cordon
 pip install -e ".[dev]"
 pytest
